@@ -30,7 +30,7 @@ export default function Sidebar() {
             color="red"
             withBorder
           >
-            <Avatar size="md" radius="xl" src="/mlg.jpg" />
+            <Avatar size="md" radius="xl" src="/itsMe.jpg" />
           </Indicator>
           <Text component={RouterNavLink} to="/">
             User : Tanakrit : Student
