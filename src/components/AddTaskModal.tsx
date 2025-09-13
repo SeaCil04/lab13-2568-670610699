@@ -11,12 +11,17 @@ import {
   Text,
 } from "@mantine/core";
 import { DateInput } from "@mantine/dates";
-import { useTaskFormStore } from "../store/TaskFormStore";
+import { useTaskFormStore } from "../store/TaskFromStore";
 
 interface AddTaskModalProps {
   opened: boolean;
   onClose: () => void;
-  onAdd: (title: string, description: string, dueDate: string | null) => void;
+  onAdd: (
+    title: string,
+    description: string,
+    dueDate: string | null,
+    assignees: string[]
+  ) => void;
 }
 const usersData: Record<string, { image: string; email: string }> = {
   "Emily Johnson": {
@@ -46,6 +51,20 @@ const usersData: Record<string, { image: string; email: string }> = {
   },
 };
 
+const renderMultiSelectOption: MultiSelectProps["renderOption"] = ({
+  option,
+}) => (
+  <Group gap="sm">
+    <Avatar src={usersData[option.value].image} size={36} radius="xl" />
+    <div>
+      <Text size="sm">{option.value}</Text>
+      <Text size="xs" opacity={0.5}>
+        {usersData[option.value].email}
+      </Text>
+    </div>
+  </Group>
+);
+
 export default function AddTaskModal({
   opened,
   onClose,
@@ -55,14 +74,31 @@ export default function AddTaskModal({
     title,
     description,
     dueDate,
-    setTitle,
+    assignees,
+    setTasks,
     setDescription,
     setDueDate,
+    setAssignees,
     resetForm,
   } = useTaskFormStore();
+
+  const assigneeList = [
+    "Emily Johnson",
+    "Ava Rodriguez",
+    "Olivia Chen",
+    "Ethan Barnes",
+    "Mason Taylor",
+  ];
+
   const handleAdd = () => {
-    if (!title.trim() || !description.trim() || !dueDate) return;
-    onAdd(title, description, dueDate);
+    if (
+      !title.trim() ||
+      !description.trim() ||
+      !dueDate ||
+      assignees.length == 0
+    )
+      return;
+    onAdd(title, description, dueDate, assignees);
     onClose();
     resetForm();
   };
@@ -74,7 +110,7 @@ export default function AddTaskModal({
           label="Title"
           withAsterisk
           value={title}
-          onChange={(e) => setTitle(e.currentTarget.value)}
+          onChange={(e) => setTasks(e.currentTarget.value)}
           error={!title.trim() && "Title is required"}
         />
         <Textarea
@@ -93,7 +129,21 @@ export default function AddTaskModal({
           onChange={(date) => setDueDate(date ? date : null)}
           error={!dueDate?.trim() ? "Due Date is required" : false}
         />
-        {/* เพิ่ม MultiSelect ตรงนี้*/}
+        <MultiSelect
+          data={assigneeList}
+          renderOption={renderMultiSelectOption}
+          maxDropdownHeight={300}
+          error={assignees.length == 0 ? "Assignees is required" : ""}
+          label="Assignees"
+          value={assignees}
+          onChange={(ss) => {
+            console.log(ss);
+            setAssignees(ss);
+          }}
+          placeholder="Search for Assingees"
+          hidePickedOptions={true}
+          searchable
+        />
         <Button onClick={handleAdd}>Save</Button>
       </Stack>
     </Modal>
